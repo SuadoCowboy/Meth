@@ -2,6 +2,7 @@ import os
 import sys
 import shutil
 import importlib
+import importlib.util
 
 class LibraryNotFoundError(Exception):
 	def __init__(self, message='Library folder does not exists.'):
@@ -174,7 +175,7 @@ def find_extension(filename: str, file_path: str='.', ignore_extensions: list=[]
     '''
     Finds the specified file name extension inside the specified path.
     
-    returns the full file path with the full file name and with the file extension, all inside a string.
+    returns the full file path with the file name and with the file extension, all together in a string.
     '''
     files = os.listdir(file_path)
     for file in files:
@@ -190,7 +191,35 @@ def find_extension(filename: str, file_path: str='.', ignore_extensions: list=[]
     return file_path+os.path.sep+file+extension
 
 if os.name == 'nt':
-	if importlib.find_loader('win32con') and importlib.find_loader('win32api') and importlib.find_loader('keyboard'):
+	if importlib.util.find_spec('win32con') and importlib.util.find_spec('win32api') and importlib.util.find_spec('keyboard'):
 		mouse = PythonLib.__import__(__name__, 'win_mouse', 'windows')
 	else:
-		mouse = 'Missing win32con, win32api or keyboard. Use pip install pypiwin32 and pip install keyboard to install them all.'
+		class _:
+			def __init__(self):
+				pass
+			def __repr__(self):
+				misses = []
+				if not importlib.util.find_spec('win32con'):
+					misses.append('win32con')
+				if not importlib.util.find_spec('win32api'):
+					misses.append('win32api')
+				if not importlib.util.find_spec('keyboard'):
+					misses.append('keyboard')
+				if len(misses) == 1:
+					print('Missing ' + misses[-1])
+				else:
+					out = 'Missing '
+					for i in misses:
+						if i == misses[-1]:
+							out = out[:-2]
+							out += ' and ' + i
+						else:
+							out += i + ', '
+					print(out)
+				if 'win32con' in misses or 'win32api' in misses:
+					print('use pip install pypiwin32 to get win32con and/or win32api')
+				if 'keyboard' in misses:
+					print('use pip install keyboard to get keyboard module')
+				return ''
+		mouse = _()
+		del _
