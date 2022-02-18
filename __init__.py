@@ -19,8 +19,9 @@ class _PythonLib:
         self.lib_path = lib_path
         if self.lib_path == None:
             for p in sys.path:
-                if os.path.basename(p).lower() == 'lib' and 'win32' not in p.split(os.sep):
+                if os.path.basename(p).lower() == 'site-packages' and 'win32' != p.split(os.sep)[-1]:
                     self.lib_path = p
+                    break
         
         self.meth_path = __file__.split(os.path.sep)
         self.meth_path = self.meth_path[:-1]
@@ -201,7 +202,7 @@ if os.name == 'nt':
     if importlib.util.find_spec('win32con') and importlib.util.find_spec('win32api') and importlib.util.find_spec('keyboard'):
         mouse = PythonLib.__import__(__name__, 'win_mouse', 'windows')
     else:
-        class _:
+        class _ignore:
             def __init__(self):
                 pass
             def __repr__(self):
@@ -228,5 +229,5 @@ if os.name == 'nt':
                 if 'keyboard' in misses:
                     print('use pip install keyboard to get keyboard module')
                 return ''
-        mouse = _()
-        del _
+        mouse = _ignore()
+        del _ignore
