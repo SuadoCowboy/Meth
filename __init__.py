@@ -149,10 +149,16 @@ class _PythonLib:
             print('WARNING: this function only works on windows and because of that, it will only return the path.')
         return lib
 
-    def find_lib(self, lib_name: str):
+    def find_lib(self, file_path: str, separator: str=None):
         '''returns a path if lib exists if it does not exists then returns false'''
+
+        if separator == None:
+            separator = os.path.sep
+
+        file_path = file_path.split(separator)
+
         for lib in os.listdir(self.lib_path):
-            if lib_name == lib:
+            if (len(file_path) > 1 and file_path[-2] == lib) or (len(file_path) != 0 and file_path[-1] == lib):
                 return os.path.join(self.lib_path, lib)
         return False
 
